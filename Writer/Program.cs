@@ -1,5 +1,5 @@
-﻿using System.Text;
-using ReaderWriterApp.Shared;
+﻿using ReaderWriterApp.Shared;
+using System.Text;
 
 namespace Writer
 {
@@ -7,6 +7,16 @@ namespace Writer
     {
         static void Main(string[] args)
         {
+            if (args[0] == "--path")
+            {
+                Protocol.SharedFilePath = args[1];
+            }
+            else
+            {
+                Console.WriteLine("Runtime Arguments Error");
+                return;
+            }
+
             Console.WriteLine("========== Writer ==========");
             Console.WriteLine("Modes: line (default) | paragraph");
             Console.WriteLine("Commands: /mode line | /mode paragraph | /send | /clear | /exit");
