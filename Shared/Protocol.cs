@@ -2,7 +2,7 @@
 {
     public static class Protocol
     {
-        public const string SharedFilePath = "shared.txt";
+        public static string? SharedFilePath;
         public const string MessageDelimiter = "---END---";
     }
 }
