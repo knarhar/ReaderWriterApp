@@ -25,14 +25,6 @@ namespace Writer
             string mode = "line";
             var buffer = new StringBuilder();
 
-            using var sourceFile = new FileStream(
-                Protocol.SharedFilePath,
-                FileMode.Append,
-                FileAccess.Write,
-                FileShare.Read
-            );
-            using var writer = new StreamWriter(sourceFile);
-
             while (true)
             {
                 Console.Write(mode == "line" ? "> " : ".. ");
@@ -63,7 +55,7 @@ namespace Writer
                     case "/send":
                         if (mode == "paragraph")
                         {
-                            SendMessage(writer, buffer.ToString());
+                            SendMessage(buffer.ToString());
                             buffer.Clear();
                         }
                         continue;
@@ -71,7 +63,7 @@ namespace Writer
 
                 if (mode == "line")
                 {
-                    SendMessage(writer, input);
+                    SendMessage(input);
                 }
                 else
                 {
@@ -80,13 +72,24 @@ namespace Writer
             }
         }
 
-        static void SendMessage(StreamWriter writer, string text)
+        static void SendMessage(string text)
         {
-            if (string.IsNullOrWhiteSpace(text)) return;
+            if (string.IsNullOrWhiteSpace(text) || Protocol.SharedFilePath == null) return;
 
-            writer.WriteLine(text.TrimEnd());
-            writer.WriteLine(Protocol.MessageDelimiter);
-            writer.Flush();
+            // new file stream for each message so the messages will pass real time.
+            // OS level issue
+            using (var sourceFile = new FileStream(
+                Protocol.SharedFilePath, 
+                FileMode.Append, 
+                FileAccess.Write, 
+                FileShare.Read)
+            )
+            using (var writer = new StreamWriter(sourceFile))
+            {
+                writer.WriteLine(text.TrimEnd());
+                writer.WriteLine(Protocol.MessageDelimiter);
+                writer.Flush();
+            }
 
             Console.WriteLine("[Sent]");
         }
