@@ -4,14 +4,14 @@ namespace Reader;
 
 class Program
 {
-    static string filePath = Protocol.SharedFilePath;
+    static string filePath = Protocol.SharedFilePath ?? "shared.txt";
     static long lastPosition = 0;
     static DateTime lastEventTime = DateTime.MinValue;
     static readonly TimeSpan DebounceInterval = TimeSpan.FromMilliseconds(300);
 
     static void Main(string[] args)
     {
-        filePath = ParsePathArg(args) ?? Protocol.SharedFilePath;
+        filePath = ParsePathArg(args) ?? Protocol.SharedFilePath ?? "shared.txt";
 
         Console.WriteLine("You are the Reader.");
         Console.WriteLine($"Watching file: {filePath}");
