@@ -4,26 +4,29 @@ namespace Reader;
 
 class Program
 {
+    static string filePath = Protocol.SharedFilePath;
     static long lastPosition = 0;
     static DateTime lastEventTime = DateTime.MinValue;
     static readonly TimeSpan DebounceInterval = TimeSpan.FromMilliseconds(300);
 
     static void Main(string[] args)
     {
+        filePath = ParsePathArg(args) ?? Protocol.SharedFilePath;
+
         Console.WriteLine("You are the Reader.");
-        Console.WriteLine($"Watching file: {Protocol.SharedFilePath}");
+        Console.WriteLine($"Watching file: {filePath}");
         Console.WriteLine();
 
-        if (!File.Exists(Protocol.SharedFilePath))
+        if (!File.Exists(filePath))
         {
-            File.Create(Protocol.SharedFilePath).Dispose();
+            File.Create(filePath).Dispose();
         }
 
-        lastPosition = new FileInfo(Protocol.SharedFilePath).Length;
+        lastPosition = new FileInfo(filePath).Length;
 
         using var watcher = new FileSystemWatcher(
-            Path.GetDirectoryName(Path.GetFullPath(Protocol.SharedFilePath))!,
-            Path.GetFileName(Protocol.SharedFilePath));
+            Path.GetDirectoryName(Path.GetFullPath(filePath))!,
+            Path.GetFileName(filePath));
 
         watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size;
         watcher.Changed += OnFileChanged;
@@ -36,6 +39,18 @@ class Program
         {
             Thread.Sleep(500);
         }
+    }
+
+    static string? ParsePathArg(string[] args)
+    {
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (args[i] == "--path" && i + 1 < args.Length)
+            {
+                return args[i + 1];
+            }
+        }
+        return null;
     }
 
     static void OnFileChanged(object sender, FileSystemEventArgs e)
@@ -61,7 +76,7 @@ class Program
     static void ReadNewContent()
     {
         using var stream = new FileStream(
-            Protocol.SharedFilePath,
+            filePath,
             FileMode.Open,
             FileAccess.Read,
             FileShare.ReadWrite);
