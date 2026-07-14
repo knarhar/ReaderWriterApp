@@ -7,7 +7,7 @@ namespace Writer
     {
         static void Main(string[] args)
         {
-            if (args[0] == "--path")
+            if (args.Length > 0 && args[0] == "--path")
             {
                 Protocol.SharedFilePath = args[1];
             }
